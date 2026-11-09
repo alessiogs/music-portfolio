@@ -1,10 +1,9 @@
-import { check, index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { asset } from './asset';
-import { person } from './person';
-import { id } from '../utils/id';
+import { check, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { fuzzyDate, fuzzyDateCheck, timestamps } from '../utils/dates';
+import { id } from '../utils/id';
 import { position } from '../utils/position';
 import { status } from '../utils/status';
+import { asset } from './asset';
 
 export const project = sqliteTable(
 	'project',
@@ -24,26 +23,5 @@ export const project = sqliteTable(
 	(t) => [
 		check('project_active_from_format', fuzzyDateCheck(t.activeFrom)),
 		check('project_active_to_format', fuzzyDateCheck(t.activeTo))
-	]
-);
-
-export const projectMember = sqliteTable(
-	'project_member',
-	{
-		id: id(),
-		projectId: integer()
-			.notNull()
-			.references(() => project.id, { onDelete: 'cascade' }),
-		personId: integer()
-			.notNull()
-			.references(() => person.id, { onDelete: 'restrict' }),
-		role: text(), // free text: "vocals, rhythm guitar"
-		activeFrom: fuzzyDate(),
-		activeTo: fuzzyDate(),
-		position: position()
-	},
-	(t) => [
-		index('project_member_project_idx').on(t.projectId),
-		index('project_member_person_idx').on(t.personId)
 	]
 );
