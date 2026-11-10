@@ -1,57 +1,32 @@
-# sv
-
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@1.3.0 create --template minimal --types ts --add prettier eslint vitest="usages:unit,component" playwright="demo:no" tailwindcss="plugins:none" drizzle="database:sqlite+sqlite:better-sqlite3" --install npm music-portfolio
-```
-
-## Adding features
-
-Add features to your project with `sv add`:
-
-```sh
-npx sv add
-```
-
-For example, to add Tailwind CSS:
-
-```sh
-npx sv add tailwindcss
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
 # music-portfolio
+
+> 🚧 **Work in progress.** Not ready for use yet: the data model and admin authentication are in place, and the CMS, the player and offline support are being built.
+
+A self-hosted, open-source music portfolio for artists who have played in more than one project. Put every band and solo project on one site, each with its own bio, releases and photo gallery. Every song carries its credits: who wrote it, who produced it, and when it was written and recorded.
+
+Everything is managed through a built-in CMS, so you can upload and edit your music, photos and texts yourself. Visitors can stream songs, download the ones you allow, and save the player or whole projects for offline listening.
+
+One install is one artist: run your own copy and your files stay yours.
+
+## Stack
+
+SvelteKit, TypeScript, SQLite (better-sqlite3 + Drizzle ORM). It will ship as a single Docker image.
+
+## Development
+
+Requires Node.js 22.17 or newer.
+
+```sh
+npm install
+cp .env.example .env    # sets DATABASE_URL=local.db
+npm run db:migrate      # create the database
+npm run dev
+```
+
+Open http://localhost:5173/setup to create the admin account, then manage content at `/admin`.
+
+Other useful scripts: `npm run check` (type check), `npm run test:unit`, `npm run db:generate` (after schema changes), `npm run db:studio` (browse the database).
+
+## Contributing
+
+The project is at an early stage. For architecture, conventions and the roadmap, see [AGENTS.md](./AGENTS.md).
