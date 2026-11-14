@@ -60,12 +60,8 @@ describe('relational queries', () => {
 			.values({ slug: 'the-band', name: 'The Band', kind: 'band' })
 			.returning()
 			.get();
-		const ada = db.insert(schema.person).values({ slug: 'ada', name: 'Ada' }).returning().get();
-		const bruno = db
-			.insert(schema.person)
-			.values({ slug: 'bruno', name: 'Bruno' })
-			.returning()
-			.get();
+		const ada = db.insert(schema.person).values({ name: 'Ada' }).returning().get();
+		const bruno = db.insert(schema.person).values({ name: 'Bruno' }).returning().get();
 		db.insert(schema.projectMember)
 			.values([
 				{ projectId, personId: bruno.id, role: 'drums', position: 2 },

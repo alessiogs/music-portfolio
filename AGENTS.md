@@ -44,8 +44,8 @@ Name: not decided yet.
 All in `src/lib/server/db/schemas/`, one file per entity; helpers in `db/utils/` (`id`, `status`, `position`, `dates`).
 
 - **asset**: every uploaded file (image/audio): `storageKey`, original name, mime, size, sha256, width/height, durationMs. Resized/transcoded variants are derived from `storageKey` by convention, no extra rows.
-- **site**: singleton row (`CHECK id = 1`): artist name, tagline, bio, avatar, `links` JSON.
-- **person**: anyone credited (members, writers, producers, photographers).
+- **site**: singleton row (`CHECK id = 1`): `artistPersonId` (required, the person who is the Artist; deleting that person is `restrict`), tagline, avatar, `links` JSON. The artist's name and bio are read from the person, not stored on the site.
+- **person**: anyone credited (members, writers, producers, photographers), and the Artist: name, bio, url. No slug: persons have no page of their own.
 - **project**: band or solo: slug, name, kind, bio, activeFrom/To, cover, position, status.
 - **project_member**: project ↔ person with role and active dates.
 - **release**: album/ep/single/live/compilation, per project, releasedOn, artwork.
@@ -71,8 +71,6 @@ The domain language is defined in `GLOSSARY.md`; the Song/Recording decision is 
 - **song** keeps title, lyrics, notes, `writtenOn`, status, and still belongs to one project; gains an optional main recording. A song may have no recordings.
 - **release_track** points at a recording instead of a song. Every recording on a release belongs to the release's own project.
 - **song_credit** keeps only `lyricist` and `composer` (`writer` is dropped; "Written by" is a display rule). New **recording_credit**: `producer`, `mixing engineer`, `mastering engineer`, `performer` (with a free-text detail).
-- **site** drops `artistName` and `bio` and references the artist's person instead.
-- **person** has no public page, so `slug` is probably not needed.
 - Visibility: content is public only when it and everything it hangs off are published; a release cannot be published while any of its recordings is a draft.
 
 ## Auth (implemented)
