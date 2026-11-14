@@ -56,11 +56,12 @@ All in `src/lib/server/db/schemas/`, one file per entity; helpers in `db/utils/`
 - **user**, **session**: auth (see below).
 
 Conventions:
+
 - Integer autoincrement IDs; slugs for URLs (song/release slugs unique per project).
 - **Fuzzy dates** as text `'YYYY' | 'YYYY-MM' | 'YYYY-MM-DD'`, enforced by a `GLOB` CHECK constraint; sorts correctly as text.
 - `status` draft/published on content; `position` for manual ordering (drag-and-drop in CMS).
 - Delete rules: parent → children `cascade`; deleting a credited person is `restrict`; optional asset references `set null`.
-- Relations are moving to `src/lib/server/db/relations/[entity].ts` (see open items).
+- Relations live in `src/lib/server/db/relations/[entity].ts`, one file per entity, exported from `relations/index.ts`. Every table is exported from `schemas/index.ts`. `createDatabase` (`db/factory.ts`) loads tables and relations together, so `db.query` can follow any relation.
 
 ### Agreed changes to the content model (2026-11-14, not implemented yet)
 
@@ -95,11 +96,9 @@ The domain language is defined in `GLOSSARY.md`; the Song/Recording decision is 
 
 1. **Logout is broken**: the dashboard form posts to `/admin/logout`, but the route lives at `src/routes/logout/`. Move it to `src/routes/admin/logout/` (or change the form action).
 2. **Login page has no `+page.svelte`**: `src/routes/admin/login/` only has the server file. Same shape as setup, with `autocomplete="current-password"`.
-3. **Relations half-migrated**: `db/relations/*.ts` exists but nothing imports it; `schemas/relations.ts` still exists (only `photoRelations` left) and is exported from `schemas/index.ts`. Fix: delete `schemas/relations.ts` and its export, add `db/relations/index.ts` barrel, and in `db/index.ts` use `drizzle(client, { schema: { ...tables, ...relations }, casing: 'snake_case' })`.
-4. **`schemas/index.ts` doesn't export `project-member`, `release-track`, `song-credit`**: migrations are fine (drizzle-kit reads the whole folder), but they're missing from the runtime schema, so `db.query` relations to them won't work.
-5. Run the 6 manual auth checks (redirect chain to /setup, setup once only, redirectTo round-trip, `//example.com` blocked, HttpOnly cookie, hashed session id in db:studio).
-6. Consider running migrations at startup in `init` (`migrate(db, { migrationsFolder: 'drizzle' })` from `drizzle-orm/better-sqlite3/migrator`) so self-hosters never hit "no such table". Requires shipping `drizzle/` in the Docker image.
-7. Optional cleanup: `src/lib/vitest-examples/`, route `src/routes/page.svelte.e2e.ts` scaffold test.
+3. Run the 6 manual auth checks (redirect chain to /setup, setup once only, redirectTo round-trip, `//example.com` blocked, HttpOnly cookie, hashed session id in db:studio).
+4. Consider running migrations at startup in `init` (`migrate(db, { migrationsFolder: 'drizzle' })` from `drizzle-orm/better-sqlite3/migrator`) so self-hosters never hit "no such table". Requires shipping `drizzle/` in the Docker image.
+5. Optional cleanup: `src/lib/vitest-examples/`, route `src/routes/page.svelte.e2e.ts` scaffold test.
 
 ## Later (known gaps)
 
