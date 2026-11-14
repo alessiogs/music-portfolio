@@ -28,7 +28,10 @@ describe('test database', () => {
 		expect(db.select().from(schema.person).all()).toEqual([]);
 		expect(db.select().from(schema.photo).all()).toEqual([]);
 		expect(db.select().from(schema.project).all()).toEqual([]);
+		expect(db.select().from(schema.projectMember).all()).toEqual([]);
 		expect(db.select().from(schema.release).all()).toEqual([]);
+		expect(db.select().from(schema.releaseTrack).all()).toEqual([]);
+		expect(db.select().from(schema.songCredit).all()).toEqual([]);
 		expect(db.select().from(schema.session).all()).toEqual([]);
 		expect(db.select().from(schema.site).all()).toEqual([]);
 		expect(db.select().from(schema.song).all()).toEqual([]);

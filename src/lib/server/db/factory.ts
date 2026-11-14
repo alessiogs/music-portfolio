@@ -1,6 +1,7 @@
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
-import * as schema from './schemas';
+import * as relations from './relations';
+import * as tables from './schemas';
 
 /**
  * Opens the SQLite database at `location` (a file path, or `':memory:'`),
@@ -15,7 +16,8 @@ export function createDatabase(location: string) {
 	client.pragma('foreign_keys = ON'); // off by default in SQLite!
 	client.pragma('busy_timeout = 5000'); // wait instead of failing on a lock
 
-	return drizzle(client, { schema, casing: 'snake_case' });
+	// Tables and relations together, so `db.query` can follow every relation.
+	return drizzle(client, { schema: { ...tables, ...relations }, casing: 'snake_case' });
 }
 
 export type AppDatabase = ReturnType<typeof createDatabase>;
