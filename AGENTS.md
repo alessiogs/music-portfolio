@@ -7,10 +7,10 @@ Context for AI coding agents (and humans) working on this repo.
 - The owner is building this project **to learn**. By default, explain what to change and why, and let him write the code. Only edit files directly when explicitly asked.
 - Keep third-party dependencies to a minimum: no headless CMS, no auth library. Exceptions so far: Drizzle ORM, better-sqlite3, sharp (planned), ffmpeg (planned).
 - This is **SvelteKit 3**. Many docs, tutorials and AI snippets still show v2 APIs: check `node_modules/@sveltejs/kit/types/index.d.ts` before suggesting an import (see "SvelteKit 3 gotchas" below).
-- Branches: work on feature branches, merge into `development` via PR. `main` is for releases.
+- Branches: one branch per feature/fix (`feature/...`, `fix/...`, `docs/...`), cut from `develop` and merged back into `develop` via PR. `develop` is then merged into `main`. Never commit straight to `main`.
 - Useful commands: `npm run dev`, `npm run check`, `npm run test:unit`, `npm run db:generate`, `npm run db:migrate`, `npm run db:studio`.
 
-Last updated: 2026-11-10. Repo: `alessiogs/music-portfolio` (public), work happens on `development`, feature branches merged via PR.
+Last updated: 2026-11-14. Repo: `alessiogs/music-portfolio` (public), work happens on `develop`, feature branches merged via PR.
 
 ## What it is
 
@@ -62,7 +62,19 @@ Conventions:
 - Delete rules: parent → children `cascade`; deleting a credited person is `restrict`; optional asset references `set null`.
 - Relations are moving to `src/lib/server/db/relations/[entity].ts` (see open items).
 
-## Auth (implemented, branch merged into development)
+### Agreed changes to the content model (2026-11-14, not implemented yet)
+
+The domain language is defined in `GLOSSARY.md`; the Song/Recording decision is in `docs/adr/0001-song-and-recording-are-separate.md`. The schema above still describes the old model. To bring it in line:
+
+- New **recording** table: one audio version of a song. Takes `audioAssetId`, `downloadable`, `producedOn` (rename to `recordedOn`) and its own `status` from `song`; gains `kind` (studio/demo/live) and an optional version label.
+- **song** keeps title, lyrics, notes, `writtenOn`, status, and still belongs to one project; gains an optional main recording. A song may have no recordings.
+- **release_track** points at a recording instead of a song. Every recording on a release belongs to the release's own project.
+- **song_credit** keeps only `lyricist` and `composer` (`writer` is dropped; "Written by" is a display rule). New **recording_credit**: `producer`, `mixing engineer`, `mastering engineer`, `performer` (with a free-text detail).
+- **site** drops `artistName` and `bio` and references the artist's person instead.
+- **person** has no public page, so `slug` is probably not needed.
+- Visibility: content is public only when it and everything it hangs off are published; a release cannot be published while any of its recordings is a draft.
+
+## Auth (implemented)
 
 - One admin user. Passwords hashed with `node:crypto` scrypt (N=2^17, r=8, p=1), stored as `scrypt$N$r$p$salt$hash`, NFKC-normalized, `timingSafeEqual`, dummy hash for unknown usernames.
 - DB sessions, not JWT. Cookie holds a random 32-byte token; DB stores only its SHA-256. 30-day sliding expiry, cookie re-set only when renewed (<15 days left), HttpOnly, SameSite=Lax.
@@ -104,3 +116,17 @@ Conventions:
 > Self-hosted music portfolio for artists with multiple projects. Built-in CMS for bands, solo work, songs, credits and photo galleries, with an offline-ready player. SvelteKit + SQLite, one Docker container.
 
 Topics: music, self-hosted, portfolio, cms, sveltekit, sqlite, pwa, offline-first, audio-player, musicians.
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues for `alessiogs/music-portfolio` via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `GLOSSARY.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
